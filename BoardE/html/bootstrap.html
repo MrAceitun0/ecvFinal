@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span> 
+        </button>
+        <a class="navbar-brand" href="#">eBoard</a>
+      </div>
+      <div class="collapse navbar-collapse" id="myNavbar">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#"><span class="glyphicon glyphicon-blackboard"></span> Board</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-facetime-video"></span> Video</a></li>
+          <li><a href="#" id="reset_button"><span class="glyphicon glyphicon-repeat"></span> Reset Board</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#"><span class="glyphicon glyphicon-arrow-left"></span> Back</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-4" align="center">
+        <div>
+            <button type="button" class="btn btn-primary btn-lg" id="prev_button"><span class="glyphicon glyphicon-arrow-left"></span></button>
+            <div class="btn btn-primary btn-lg" id="stage">
+            </div>
+            <button type="button" class="btn btn-primary btn-lg" id="next_button"><span class="glyphicon glyphicon-arrow-right"></span></button>
+        </div>
+        <br>
+        <div>
+          <button type="button" class="btn btn-danger btn-lg" id="delete_button"><span class="glyphicon glyphicon-minus">Delete Last Stage</span></button>
+        </div>
+
+        <div>
+          <h1>CHAT HERE</h1>
+        </div>
+      </div>
+
+      <div class="col-sm-8" align="center">
+        <div class="container">
+          <div class="row">
+            <input type="image" class="selectableImageLong" src="../images/long.png" />
+            <input type="image" class="selectableImageShort" src="../images/short.png" />
+          </div>
+        </div>
+
+        <div style="margin-top: 3%">
+          <button type="button" class="btn btn-primary btn-lg" id="play_button"><span class="glyphicon glyphicon-play "></span></button>
+          <button type="button" class="btn btn-warning btn-lg" style="margin-left: 3%"><span class="glyphicon glyphicon-pause"></span></button>
+
+          <button type="button" class="btn btn-primary btn-lg" style="margin-left: 15%" id="paint"><span class="glyphicon glyphicon-pencil"></span></button>
+          <button type="button" class="btn btn-warning btn-lg" style="margin-left: 3%"><span class="glyphicon glyphicon-erase"></span></button>
+        </div>
+
+        <div>
+          <canvas id="canvas" width="1200" height="800" style="background: url('../images/board.jpg')">
+            This text is displayed if your browser does not support HTML5 Canvas.
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+    <script type="text/javascript" src="../js/script.js"></script>
+</html>

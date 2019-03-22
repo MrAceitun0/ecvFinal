@@ -1,0 +1,11 @@
+﻿body
+{
+}
+
+.actualStage{
+    margin-top: 5px;
+    color: #fff;
+}
+
+#canvas
+{ background: url("../images/board.jpg"); }
