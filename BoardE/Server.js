@@ -107,18 +107,19 @@ function onMessage(request)
         if(dataType === "new")
         {
             newUser(request);
+            if(stages.length > 0)
+                sendPositionStage(dataParsed);
+            else
+                sendMessageNoPosition(request);
         }
         else if(dataType === "realTimePosition")
         {
+            addPositionStages(dataParsed);
             sendRealTimePosition(request, dataParsed);
         }
         else if(dataType === "getPosition")
         {
             sendPositionStage(dataParsed);
-        }
-        else if(dataType === "positionStage")
-        {
-            addPositionStages(dataParsed);
         }
         else if(dataType === "deleteStage")
         {
@@ -130,33 +131,26 @@ function onMessage(request)
         }
     });
 }
-/*
-function actualPosition(request, dataParsed)
-{
 
-}
-*/
 function addPositionStages(dataParsed)
 {
-    if(stages.length <= 11)
+    if(stages.length < 11)
         stages.push(dataParsed);
     else
     {
         for(var i = 0; i < stages.length; i++)
         {
-
             if(stages[i].stage === dataParsed.stage && stages[i].id === dataParsed.id)
             {
-                    stages[i].posX = dataParsed.posX;
-                    stages[i].posY = dataParsed.posY;
+                stages[i].posX = dataParsed.posX;
+                stages[i].posY = dataParsed.posY;
 
-                    return;
+                return;
             }
         }
 
         stages.push(dataParsed);
     }
-    console.log(stages[0]);
 }
 
 function deleteLastStage(dataParsed)
@@ -207,13 +201,22 @@ function resetBoard()
     stages.splice(0, stages.length);
 }
 
+function sendMessageNoPosition(request)
+{
+    for(var i = 0; i < clients.length; i++)
+    {
+        if(request.userID === clients[i].userID)
+            clients[i].send(JSON.stringify({type: "NoPositionsStore"}));
+    }
+}
+
 function sendRealTimePosition(request, dataParsed)
 {
     for(var i = 0; i < clients.length; i++)
     {
         if(request.userID !== clients[i].userID)
         {
-            clients[i].send(JSON.stringify({type: dataParsed.type, posX: dataParsed.x, posY: dataParsed.y, rad: dataParsed.rad, color: dataParsed.color, id: dataParsed.id, stage: dataParsed.stage}));
+            clients[i].send(JSON.stringify({type: dataParsed.type, posX: dataParsed.posX, posY: dataParsed.posY, rad: dataParsed.rad, color: dataParsed.color, id: dataParsed.id, stage: dataParsed.stage}));
         }
     }
 }
