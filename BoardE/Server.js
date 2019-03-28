@@ -107,10 +107,16 @@ function onMessage(request)
         if(dataType === "new")
         {
             newUser(request);
+
             if(stages.length > 0)
-                sendPositionStage(dataParsed);
+            {
+                sendPositionsToNewUser(request, dataParsed);
+                sendMessageYesPosition(request);
+            }
             else
+            {
                 sendMessageNoPosition(request);
+            }
         }
         else if(dataType === "realTimePosition")
         {
@@ -181,7 +187,7 @@ function deleteLastStage(dataParsed)
 function disconnect(request)
 {
     request.on('close', function(){
-        console.log("[Server]: User with id: " + clients.indexOf(request).id + " has disconnected.");
+        console.log("[Server]: User with id: " + clients.indexOf(request).userID + " has disconnected.");
 
         clients.splice(clients.indexOf(request), 1);    //Delete user from clients
     });
@@ -193,7 +199,7 @@ function newUser(request)
 
     clients.push(request);
 
-    last_id ++;
+    last_id++;
 }
 
 function resetBoard()
@@ -207,6 +213,34 @@ function sendMessageNoPosition(request)
     {
         if(request.userID === clients[i].userID)
             clients[i].send(JSON.stringify({type: "NoPositionsStore"}));
+    }
+}
+
+function sendMessageYesPosition(request)
+{
+    for(var i = 0; i < clients.length; i++)
+    {
+        if(request.userID === clients[i].userID)
+            clients[i].send(JSON.stringify({type: "YesPositionsStore"}));
+    }
+}
+
+function sendPositionsToNewUser(request, dataParsed)
+{
+    var stage = dataParsed.stage;
+
+    for(var i = 0; i < stages.length; i++)
+    {
+        if(stages[i].stage === stage)
+        {
+            for(var j = 0; j < clients.length; j++)
+            {
+                if(request.userID === clients[j].userID)
+                {
+                    clients[j].send(JSON.stringify(stages[i]));
+                }
+            }
+        }
     }
 }
 

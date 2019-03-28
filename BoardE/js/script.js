@@ -2,7 +2,7 @@ var server = new WebSocket("ws://localhost:9041");
 
 server.onopen = function()
 {
-    server.send(JSON.stringify({type: "new"}));
+    server.send(JSON.stringify({type: "new", stage: actualStage}));
 };
 
 // Constructor for Shape objects to hold data for all drawn objects.
@@ -279,7 +279,6 @@ var lastStage = 1;
 
 var actualPositions = [];
 
-
 divStage = document.createElement("h3");
 divStage.className = "actualStage";
 divStage.innerHTML = "Stage: " + actualStage;
@@ -287,14 +286,8 @@ divStage.innerHTML = "Stage: " + actualStage;
 var stg = document.getElementById("stage");
 stg.appendChild(divStage);
 
-init();
-
 function init()
 {
-
-
-    //var s = new CanvasState(document.getElementById('canvas'));
-
     actualPositions[0] = {x: 350, y: 600, rad: 15, color: '#ff7200', id: 0};
     s.addShape(new Shape(350, 600, 15, '#ff7200', 0));
 
@@ -317,6 +310,15 @@ function init()
     }
 }
 
+function initRestUsers()
+{
+    for(var i = 0; i < 11; i++)
+    {
+        console.log(actualPositions);
+        s.addShape(new Shape(actualPositions[i].x, actualPositions[i].y, actualPositions[i].rad, actualPositions[i].color, actualPositions[i].id));
+    }
+}
+
 server.onmessage = function(msg)
 {
     var msgParsed = JSON.parse(msg.data);
@@ -328,10 +330,15 @@ server.onmessage = function(msg)
             positionRealTime(msgParsed);
         }
     }
-    if(msgParsed.type === "NoPositionsStore")
+    else if(msgParsed.type === "NoPositionsStore")
     {
-        //init();
+        init();
     }
+    else if(msgParsed.type === "YesPositionsStore")
+    {
+        initRestUsers();
+    }
+
 };
 
 function actualPosition(posX, posY, id)
@@ -359,14 +366,6 @@ function positionRealTime(msg)
     s.valid = false;
     s.draw();
 }
-
-/*function sendPositionsStage()
-{
-    for(var i = 0; i < actualPositions.length; i++)
-    {
-        server.send(JSON.stringify({type: "positionStage", posX: actualPositions[i].x, posY: actualPositions[i].y, rad: actualPositions[i].rad, color: actualPositions[i].color, id: actualPositions[i].id, stage: actualStage}));
-    }
-}*/
 
 function prevStage()
 {
