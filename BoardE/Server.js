@@ -90,6 +90,9 @@ function onConnect(request)
 
     //Messages
     onMessage(request);
+
+    //Disconnect
+    disconnect(request);
 }
 
 function onMessage(request)
@@ -104,6 +107,10 @@ function onMessage(request)
         if(dataType === "new")
         {
             newUser(request);
+        }
+        else if(dataType === "realTimePosition")
+        {
+            sendRealTimePosition(request, dataParsed);
         }
         else if(dataType === "getPosition")
         {
@@ -177,6 +184,15 @@ function deleteLastStage(dataParsed)
 
 }
 
+function disconnect(request)
+{
+    request.on('close', function(){
+        console.log("[Server]: User with id: " + clients.indexOf(request).id + " has disconnected.");
+
+        clients.splice(clients.indexOf(request), 1);    //Delete user from clients
+    });
+}
+
 function newUser(request)
 {
     request.userID = last_id;
@@ -189,6 +205,17 @@ function newUser(request)
 function resetBoard()
 {
     stages.splice(0, stages.length);
+}
+
+function sendRealTimePosition(request, dataParsed)
+{
+    for(var i = 0; i < clients.length; i++)
+    {
+        if(request.userID !== clients[i].userID)
+        {
+            clients[i].send(JSON.stringify({type: dataParsed.type, posX: dataParsed.x, posY: dataParsed.y, rad: dataParsed.rad, color: dataParsed.color, id: dataParsed.id, stage: dataParsed.stage}));
+        }
+    }
 }
 
 function sendPositionStage(dataParsed)

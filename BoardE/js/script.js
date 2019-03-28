@@ -148,6 +148,14 @@ function CanvasState(canvas) {
                 myState.selection.x = mouse.x - myState.dragoffx;
                 myState.selection.y = mouse.y - myState.dragoffy;
                 myState.valid = false; // Something's dragging so we must redraw
+
+                var shape  = myState.shapes;
+
+                for(var k = 0; k < shape.length; k++)
+                {
+                    server.send(JSON.stringify({type: "realTimePosition", x: shape[k].x, y: shape[k].y, rad: shape[k].r, color: shape[k].fill, id: shape[k].id, stage: actualStage}));
+                }
+
             }
         }
     }, true);
@@ -318,6 +326,15 @@ server.onmessage = function(msg)
     {
         positionsStage(msgParsed);
     }
+    else if(msgParsed.type === "realTimePosition")
+    {
+
+        if(msgParsed.stage === actualStage)
+        {
+            console.log(msgParsed)
+            positionRealTime(msgParsed);
+        }
+    }
 };
 
 function actualPosition(posX, posY, id)
@@ -330,6 +347,20 @@ function actualPosition(posX, posY, id)
             actualPositions[i].y = posY;
         }
     }
+}
+
+function positionRealTime(msg)
+{
+    actualPositions[msg.id] = {x: msg.posX, y: msg.posY, rad: msg.rad, color: msg.color, id: msg.id};
+
+    for(var i = 0; i < actualPositions.length; i++)
+    {
+        s.shapes[i].x = actualPositions[i].x;
+        s.shapes[i].y = actualPositions[i].y;
+    }
+
+    s.valid = false;
+    s.draw();
 }
 
 function positionsStage(msg)
@@ -345,14 +376,6 @@ function positionsStage(msg)
     s.valid = false;
     s.draw();
 }
-
-/*function sendActualPositions()
-{
-    for(var i = 0; i < actualPositions.length; i++)
-    {
-        server.send(JSON.stringify({type: "position", posX: actualPositions[i].x, posY: actualPositions[i].y, rad: actualPositions[i].rad, color: actualPositions[i].color, id: actualPositions[i].id}));
-    }
-}*/
 
 function sendPositionsStage()
 {
