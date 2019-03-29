@@ -36,7 +36,7 @@
 
   <div class="container-fluid">
     <div class="row">
-      <div class="col-sm-4" align="center">
+      <div class="col-sm-6" align="center">
         <div>
             <button type="button" class="btn btn-primary btn-lg" id="prev_button"><span class="glyphicon glyphicon-arrow-left"></span></button>
             <div class="btn btn-primary btn-lg" id="stage">
@@ -48,12 +48,9 @@
           <button type="button" class="btn btn-danger btn-lg" id="delete_button"><span class="glyphicon glyphicon">Delete Last Stage</span></button>
         </div>
 
-        <div>
-          <h1>CHAT HERE</h1>
-        </div>
       </div>
 
-      <div class="col-sm-8" align="center">
+      <div class="col-sm-6" align="center">
         <div class="container">
           <div class="row">
             <input type="image" id="long" class="selectableImageLong" src="../images/longBoard.png" />
@@ -66,13 +63,15 @@
           <button type="button" class="btn btn-danger btn-lg" id="clean"><span class="glyphicon glyphicon-erase"></span></button>
         </div>
 
-        <div>
-          <canvas id="canvas" width="1200" height="800" style="background: url('../images/longBoard.png')">
-            This text is displayed if your browser does not support HTML5 Canvas.
-          </canvas>
-        </div>
+
       </div>
     </div>
+  </div>
+
+  <div class="container">
+    <canvas id="canvas" width="1200" height="800" style="background: url('../images/longBoard.png')">
+      This text is displayed if your browser does not support HTML5 Canvas.
+    </canvas>
   </div>
 
 </body>
