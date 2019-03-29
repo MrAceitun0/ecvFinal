@@ -9,3 +9,15 @@
 
 #canvas
 { background: url("../images/board.jpg"); }
+
+.selectableImageLong
+{
+    width: 20%;
+    margin-right: 2em;
+}
+
+.selectableImageShort
+{
+    width: 20%;
+    margin-left: 2em;
+}

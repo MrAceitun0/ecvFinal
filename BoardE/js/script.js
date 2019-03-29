@@ -288,24 +288,24 @@ stg.appendChild(divStage);
 
 function init()
 {
-    actualPositions[0] = {x: 350, y: 600, rad: 15, color: '#ff7200', id: 0};
-    s.addShape(new Shape(350, 600, 15, '#ff7200', 0));
+    actualPositions[0] = {x: 600, y: 750, rad: 15, color: '#ff7200', id: 0};
+    s.addShape(new Shape(600, 750, 15, '#ff7200', 0));
 
-    var positionX = 50;
+    var positionX = 200;
 
     for(var i = 1; i < 6; i++)
     {
-        actualPositions[i] = {x: positionX, y: 600, rad: 20, color: 'green', id: i};
-        s.addShape(new Shape(positionX, 600, 20, 'green', i));
+        actualPositions[i] = {x: positionX, y: 750, rad: 20, color: '#00c606', id: i};
+        s.addShape(new Shape(positionX, 750, 20, '#00c606', i));
         positionX += 50;
     }
 
-    positionX = 450;
+    positionX = 800;
 
     for(var j = 6; j < 11; j++)
     {
-        actualPositions[j] = {x: positionX, y: 600, rad: 20, color: 'yellow', id: j};
-        s.addShape(new Shape(positionX, 600, 20, 'yellow', j));
+        actualPositions[j] = {x: positionX, y: 750, rad: 20, color: '#eeff00', id: j};
+        s.addShape(new Shape(positionX, 750, 20, '#eeff00', j));
         positionX += 50;
     }
 }
@@ -338,6 +338,14 @@ server.onmessage = function(msg)
     {
         initRestUsers();
     }
+    else if(msgParsed.type === "getPlay")
+    {
+        saveStages(msgParsed);
+    }
+    else if(msgParsed.type === "endStages")
+    {
+        playStages();
+    }
 
 };
 
@@ -367,8 +375,31 @@ function positionRealTime(msg)
     s.draw();
 }
 
+var playList = [];
+var updatedPlayList = [];
+
+function playStages()
+{
+
+}
+
+function saveStages(msg)
+{
+    playList.push(msg);
+}
+
+function sendPositionsStage()
+{
+    for(var i = 0; i < actualPositions.length; i++)
+    {
+        server.send(JSON.stringify({type: "positionStage", posX: actualPositions[i].x, posY: actualPositions[i].y, rad: actualPositions[i].rad, color: actualPositions[i].color, id: actualPositions[i].id, stage: actualStage}));
+    }
+}
+
 function prevStage()
 {
+    sendPositionsStage();
+
     if(actualStage > 1)
         actualStage--;
 
@@ -379,6 +410,8 @@ function prevStage()
 
 function nextStage()
 {
+    sendPositionsStage();
+
     if(actualStage < maxStage)
     {
         actualStage++;
@@ -390,19 +423,22 @@ function nextStage()
     server.send(JSON.stringify({type: "getPosition", stage: actualStage}));
 }
 
-function playStages()
+function requestPlay()
 {
-
+    server.send(JSON.stringify({type: "play"}));
 }
 
 function deleteStage()
 {
-    server.send(JSON.stringify({type: "deleteStage", lastStage: lastStage, stage: actualStage}));
+    if(lastStage > 1)
+    {
+        server.send(JSON.stringify({type: "deleteStage", lastStage: lastStage, stage: actualStage}));
 
-    if(actualStage === lastStage)
-        actualStage--;
+        if(actualStage === lastStage)
+            actualStage--;
 
-    lastStage--;
+        lastStage--;
+    }
 
     divStage.innerHTML = "Stage: " + actualStage;
 }
@@ -426,7 +462,7 @@ var reset_button = document.getElementById("reset_button");
 
 prev_button.addEventListener("click", prevStage);
 next_button.addEventListener("click", nextStage);
-play_button.addEventListener("click", playStages);
+play_button.addEventListener("click", requestPlay);
 delete_button.addEventListener("click", deleteStage);
 reset_button.addEventListener("click", resetBoard);
 

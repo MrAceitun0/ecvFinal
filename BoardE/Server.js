@@ -123,6 +123,10 @@ function onMessage(request)
             addPositionStages(dataParsed);
             sendRealTimePosition(request, dataParsed);
         }
+        else if(dataType === "positionStage")
+        {
+            addPositionStages(dataParsed);
+        }
         else if(dataType === "getPosition")
         {
             sendPositionStage(dataParsed);
@@ -135,11 +139,18 @@ function onMessage(request)
         {
             resetBoard();
         }
+        else if(dataType === "play")
+        {
+            play(request);
+        }
     });
 }
 
 function addPositionStages(dataParsed)
 {
+    if(dataParsed.type === "positionStage")
+        dataParsed.type = "realTimePosition";
+
     if(stages.length < 11)
         stages.push(dataParsed);
     else
@@ -172,7 +183,6 @@ function deleteLastStage(dataParsed)
             stages.splice(i, 11);
         }
     }
-    console.log(stages);
 
     if(actual)
     {
@@ -200,6 +210,26 @@ function newUser(request)
     clients.push(request);
 
     last_id++;
+}
+
+function play(request)
+{
+    for(var j = 0; j < stages.length; j++)
+    {
+        for(var i = 0; i < clients.length; i++)
+        {
+            stages[j].type = "getPlay";
+            if(request.userID === clients[i].userID)
+                clients[i].send(JSON.stringify(stages[j]));
+
+        }
+    }
+
+    for(var k = 0; k < clients.length; k++)
+    {
+        if(request.userID === clients[k].userID)
+            clients[k].send(JSON.stringify({type: "endStages"}));
+    }
 }
 
 function resetBoard()
