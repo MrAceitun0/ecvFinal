@@ -20,7 +20,8 @@ function Shape(x, y, r, fill, id)
 }
 
 // Draws this shape to a given context
-Shape.prototype.draw = function (ctx) {
+Shape.prototype.draw = function (ctx)
+{
     ctx.fillStyle = this.fill;
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
@@ -89,6 +90,8 @@ function CanvasState(canvas) {
     // This is our reference!
     var myState = this;
 
+    var isPainting = false;
+
     var myX;
     var myY;
 
@@ -96,12 +99,14 @@ function CanvasState(canvas) {
     canvas.addEventListener('selectstart', function (e) { e.preventDefault(); return false; }, false);
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function (e) {
+        if(myID !== 0)
+            return;
         if(canPaint)
         {
+            isPainting = true;
             var mouse = myState.getMouse(e);
             myState.ctx.beginPath();
             myState.ctx.moveTo(mouse.x, mouse.y);
-
             canvas.addEventListener('mousemove', onPaint, false);
         }
         else
@@ -133,11 +138,18 @@ function CanvasState(canvas) {
         }
     }, true);
     canvas.addEventListener('mousemove', function (e) {
+        if(myID !== 0)
+            return;
         if(canPaint)
         {
             var mouse = myState.getMouse(e);
             mouse.x = e.pageX - this.offsetLeft;
             mouse.y = e.pageY - this.offsetTop;
+            if(isPainting)
+            {
+                server.send(JSON.stringify({type: "realTimePaint", posX: mouse.x, posY: mouse.y, stage: actualStage, isFirst: messagePaint}));
+                messagePaint = true;
+            }
         }
         else
         {
@@ -159,8 +171,12 @@ function CanvasState(canvas) {
         }
     }, true);
     canvas.addEventListener('mouseup', function (e) {
+        if(myID !== 0)
+            return;
         if(canPaint)
         {
+            isPainting = false;
+            messagePaint = false;
             var mouse = myState.getMouse(e);
             canvas.removeEventListener('mousemove', onPaint, false);
         }
@@ -201,6 +217,7 @@ function CanvasState(canvas) {
             var mouse = myState.getMouse(e);
             myState.ctx.lineTo(mouse.x, mouse.y);
             myState.ctx.stroke();
+
         }
     };
 
@@ -225,7 +242,8 @@ CanvasState.prototype.clear = function () {
 // It only ever does something if the canvas gets invalidated by our code
 CanvasState.prototype.draw = function () {
     // if our state is invalid, redraw and validate!
-    if (!this.valid) {
+    if (!this.valid)
+    {
         var ctx = this.ctx;
         var shapes = this.shapes;
         this.clear();
@@ -319,6 +337,8 @@ function initRestUsers()
     }
 }
 
+var myID;
+
 server.onmessage = function(msg)
 {
     var msgParsed = JSON.parse(msg.data);
@@ -332,19 +352,20 @@ server.onmessage = function(msg)
     }
     else if(msgParsed.type === "NoPositionsStore")
     {
+        myID = msgParsed.id;
         init();
     }
     else if(msgParsed.type === "YesPositionsStore")
     {
+        myID = msgParsed.id;
         initRestUsers();
     }
-    else if(msgParsed.type === "getPlay")
+    else if(msgParsed.type === "realTimePaint")
     {
-        saveStages(msgParsed);
-    }
-    else if(msgParsed.type === "endStages")
-    {
-        playStages();
+        if(msgParsed.stage === actualStage)
+        {
+            paintRealTime(msgParsed);
+        }
     }
 
 };
@@ -361,6 +382,26 @@ function actualPosition(posX, posY, id)
     }
 }
 
+var msgMouse = [];
+var messagePaint = false;
+
+function paintRealTime(msgParsed)
+{
+    if(!msgParsed.isFirst)
+    {
+        s.ctx.moveTo(msgParsed.posX - 910, msgParsed.posY - 70);
+        s.ctx.stroke();
+    }
+
+    //messagePaint = true;
+
+    msgMouse.x = msgParsed.posX;
+    msgMouse.y = msgParsed.posY;
+
+    s.ctx.lineTo(msgParsed.posX - 910, msgParsed.posY - 70);
+    s.ctx.stroke();
+}
+
 function positionRealTime(msg)
 {
     actualPositions[msg.id] = {x: msg.posX, y: msg.posY, rad: msg.rad, color: msg.color, id: msg.id};
@@ -373,19 +414,6 @@ function positionRealTime(msg)
 
     s.valid = false;
     s.draw();
-}
-
-var playList = [];
-var updatedPlayList = [];
-
-function playStages()
-{
-
-}
-
-function saveStages(msg)
-{
-    playList.push(msg);
 }
 
 function sendPositionsStage()
@@ -423,13 +451,16 @@ function nextStage()
     server.send(JSON.stringify({type: "getPosition", stage: actualStage}));
 }
 
-function requestPlay()
+/*function requestPlay()
 {
     server.send(JSON.stringify({type: "play"}));
-}
+}*/
 
 function deleteStage()
 {
+    if(myID !== 0)
+        return;
+
     if(lastStage > 1)
     {
         server.send(JSON.stringify({type: "deleteStage", lastStage: lastStage, stage: actualStage}));
@@ -445,6 +476,9 @@ function deleteStage()
 
 function resetBoard()
 {
+    if(myID !== 0)
+        return;
+
     s.shapes = [];
 
     server.send(JSON.stringify({type: "resetBoard"}));
@@ -456,13 +490,13 @@ function resetBoard()
 
 var prev_button = document.getElementById("prev_button");
 var next_button = document.getElementById("next_button");
-var play_button = document.getElementById("play_button");
+//var play_button = document.getElementById("play_button");
 var delete_button = document.getElementById("delete_button");
 var reset_button = document.getElementById("reset_button");
 
 prev_button.addEventListener("click", prevStage);
 next_button.addEventListener("click", nextStage);
-play_button.addEventListener("click", requestPlay);
+//play_button.addEventListener("click", requestPlay);
 delete_button.addEventListener("click", deleteStage);
 reset_button.addEventListener("click", resetBoard);
 

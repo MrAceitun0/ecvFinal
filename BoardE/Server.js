@@ -143,6 +143,10 @@ function onMessage(request)
         {
             play(request);
         }
+        else if(dataType === "realTimePaint")
+        {
+            paint(request, dataParsed);
+        }
     });
 }
 
@@ -212,6 +216,17 @@ function newUser(request)
     last_id++;
 }
 
+function paint(request, dataParsed)
+{
+    for(var i = 0; i < clients.length; i++)
+    {
+        if(request.userID !== clients[i].userID)
+        {
+            clients[i].send(JSON.stringify({type: dataParsed.type, posX: dataParsed.posX, posY: dataParsed.posY, stage: dataParsed.stage, isFirst: dataParsed.isFirst}));
+        }
+    }
+}
+
 function play(request)
 {
     for(var j = 0; j < stages.length; j++)
@@ -242,7 +257,7 @@ function sendMessageNoPosition(request)
     for(var i = 0; i < clients.length; i++)
     {
         if(request.userID === clients[i].userID)
-            clients[i].send(JSON.stringify({type: "NoPositionsStore"}));
+            clients[i].send(JSON.stringify({type: "NoPositionsStore", id: request.userID}));
     }
 }
 
@@ -251,7 +266,7 @@ function sendMessageYesPosition(request)
     for(var i = 0; i < clients.length; i++)
     {
         if(request.userID === clients[i].userID)
-            clients[i].send(JSON.stringify({type: "YesPositionsStore"}));
+            clients[i].send(JSON.stringify({type: "YesPositionsStore", id: request.userID}));
     }
 }
 
