@@ -306,6 +306,7 @@ stg.appendChild(divStage);
 
 function init()
 {
+    s.clear();
     actualPositions[0] = {x: 600, y: 750, rad: 15, color: '#ff7200', id: 0};
     s.addShape(new Shape(600, 750, 15, '#ff7200', 0));
 
@@ -325,6 +326,31 @@ function init()
         actualPositions[j] = {x: positionX, y: 750, rad: 20, color: '#eeff00', id: j};
         s.addShape(new Shape(positionX, 750, 20, '#eeff00', j));
         positionX += 50;
+    }
+}
+
+function initShort()
+{
+    s.clear();
+    actualPositions[0] = {x: 580, y: 400, rad: 15, color: '#ff7200', id: 0};
+    s.addShape(new Shape(580, 400, 15, '#ff7200', 0));
+
+    var positionY = 400;
+
+    for(var i = 1; i < 6; i++)
+    {
+        actualPositions[i] = {x: 80, y: positionY, rad: 20, color: '#00c606', id: i};
+        s.addShape(new Shape(80, positionY, 20, '#00c606', i));
+        positionY -= 50;
+    }
+
+    positionY = 400;
+
+    for(var j = 6; j < 11; j++)
+    {
+        actualPositions[j] = {x: 1100, y: positionY, rad: 20, color: '#eeff00', id: j};
+        s.addShape(new Shape(1100, positionY, 20, '#eeff00', j));
+        positionY -= 50;
     }
 }
 
@@ -488,17 +514,54 @@ function resetBoard()
     init();
 }
 
+
+function longBoard()
+{
+    var canvasBackground = document.getElementById("canvas");
+    canvasBackground.style = "background: url('../images/longBoard.png')";
+    if(myID !== 0)
+        return;
+
+    s.shapes = [];
+
+    server.send(JSON.stringify({type: "resetBoard"}));
+
+    actualStage = 1;
+    divStage.innerHTML = "Stage: " + actualStage;
+    init();
+}
+
+function shortBoard()
+{
+    var canvasBackground = document.getElementById("canvas");
+    canvasBackground.style = "background: url('../images/shortBoard.png')";
+    if(myID !== 0)
+        return;
+
+    s.shapes = [];
+
+    server.send(JSON.stringify({type: "resetBoard"}));
+
+    actualStage = 1;
+    divStage.innerHTML = "Stage: " + actualStage;
+    initShort();
+}
 var prev_button = document.getElementById("prev_button");
 var next_button = document.getElementById("next_button");
 //var play_button = document.getElementById("play_button");
 var delete_button = document.getElementById("delete_button");
 var reset_button = document.getElementById("reset_button");
+var long_button = document.getElementById("long");
+var short_button = document.getElementById("short");
+var clean_button = document.getElementById("clean");
 
 prev_button.addEventListener("click", prevStage);
 next_button.addEventListener("click", nextStage);
-//play_button.addEventListener("click", requestPlay);
 delete_button.addEventListener("click", deleteStage);
 reset_button.addEventListener("click", resetBoard);
+long_button.addEventListener("click", longBoard);
+short_button.addEventListener("click", shortBoard);
+clean_button.addEventListener("click", function () { s.draw(); s.valid = false; canPaint = false;});
 
 var canPaint = false;
 
