@@ -1,4 +1,4 @@
-var server = new WebSocket("ws://localhost:9041");
+var server = new WebSocket("ws://ecv-etic.upf.edu:9041");
 
 server.onopen = function()
 {
@@ -99,8 +99,6 @@ function CanvasState(canvas) {
     canvas.addEventListener('selectstart', function (e) { e.preventDefault(); return false; }, false);
     // Up, down, and move are for dragging
     canvas.addEventListener('mousedown', function (e) {
-        if(myID !== 0)
-            return;
         if(canPaint)
         {
             isPainting = true;
@@ -138,8 +136,6 @@ function CanvasState(canvas) {
         }
     }, true);
     canvas.addEventListener('mousemove', function (e) {
-        if(myID !== 0)
-            return;
         if(canPaint)
         {
             var mouse = myState.getMouse(e);
@@ -171,8 +167,6 @@ function CanvasState(canvas) {
         }
     }, true);
     canvas.addEventListener('mouseup', function (e) {
-        if(myID !== 0)
-            return;
         if(canPaint)
         {
             isPainting = false;
